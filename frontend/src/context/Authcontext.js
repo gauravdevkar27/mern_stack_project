@@ -11,12 +11,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = (userData) => {
-    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("todoAppUser", JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("todoAppUser");
     setUser(null);
   };
 

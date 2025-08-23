@@ -10,8 +10,8 @@ let authheader = () =>{
 const createToDo = (data) => {
     return axios.post(SERVER_URL+'/create-to-do', data, authheader());
 }
-const getAllToDo = (userId)=>{
-    return axios.get(SERVER_URL+'/get-all-to-do/'+userId,authheader());
+const getAllToDo = ()=>{
+    return axios.get(SERVER_URL+'/get-all-to-do',authheader());
 }
 
 const deleteToDo = (id)=>{
