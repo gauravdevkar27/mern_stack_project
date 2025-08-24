@@ -48,6 +48,18 @@ function TodoList() {
     }
   }, [navigate, messageApi])
 
+    const getAllToDo = async ()=>{
+    try{
+      let user = getUserDetails();
+      console.log(user?.userId);
+      const response = await ToDoServices.getAllToDo(user?.userId);
+      console.log(response.data);
+      setAllToDo(response.data);
+    }catch(err){
+      console.log(err);
+      messageApi.error(getErrorMessage(err));
+    }
+  }
   const getFormattedDate = (value) => {
     let date = new Date(value);
     let dateString = date.toDateString();
@@ -95,83 +107,54 @@ function TodoList() {
     setUpdatedStatus(item?.isCompleted);
     setIsEditing(true);
   }
-  const handleDelete = (item) => {
-    Modal.confirm({
-      title: 'Are you sure you want to delete this task?',
-      content: `You are about to delete "${item.title}". This action cannot be undone.`,
-      okText: 'Yes, Delete It',
-      okType: 'danger',
-      cancelText: 'No',
-      onOk: async () => {
-        // Store the original state in case of an error
-        const originalToDos = [...allToDo];
-
-        // Optimistic UI update: remove the item from the list immediately
-        setAllToDo(allToDo.filter(todo => todo._id !== item._id));
-
-        try {
-          // Call the API to delete the task from the database
-          await ToDoServices.deleteToDo(item._id);
-          messageApi.success(`Task "${item.title}" deleted successfully.`);
-        } catch (err) {
-          // If the API call fails, revert the UI and show an error message
-          console.error("Failed to delete task:", err);
-          messageApi.error(getErrorMessage(err));
-          setAllToDo(originalToDos);
-        }
-      }
-    });
-  }
-
-  const handleUpdateStatus = async (id, newStatus) => {
-    const task = allToDo.find(todo => todo._id === id);
-    if (!task) return;
-
-    // Optimistic UI update
-    const originalToDos = [...allToDo];
-    setAllToDo(allToDo.map(todo =>
-      todo._id === id ? { ...todo, isCompleted: newStatus, updatedAt: new Date().toISOString() } : todo
-    ));
-
-    try {
-      const data = { isCompleted: newStatus };
-      await ToDoServices.updateToDo(id, data);
-      messageApi.success(`Task "${task.title}" status updated.`);
-    } catch (err) {
-      console.error("Failed to update status:", err);
-      messageApi.error(getErrorMessage(err));
-      // Revert on error
-      setAllToDo(originalToDos);
-    }
-  }
-  const handleUpdateTask = async () => {
-    try {
-      setLoading(true);
-      let data = {
-        title: updatedTitle,
-        description: updatedDescription,
-        isCompleted: updatedStatus
-
-      };
-      const response = await ToDoServices.updateToDo(currentEditItem._id, data);
-      // Assuming the updated task is in response.data.data
-      const updatedTask = response.data.data;
-      messageApi.success(`${currentEditItem?.title} Updated Successfully`);
-
-      // Update the allToDo state with the new task data
-      setAllToDo(allToDo.map(todo =>
-        todo._id === updatedTask._id ? updatedTask : todo
-      ));
-
-      setLoading(false);
-      setIsEditing(false);
-      
-    } catch (err) {
+const handleDelete = async (item)=>{
+    try{
+      const response = await ToDoServices.deleteToDo(item._id);
+      console.log(response.data);
+      messageApi.success(`${item.title} is Deleted Successfully!`);
+      getAllToDo();
+    }catch(err){
       console.log(err);
-      setLoading(false);
       messageApi.error(getErrorMessage(err));
     }
   }
+
+  const handleUpdateStatus = async (id,status)=>{
+    console.log(id);
+    try{
+      const response = await ToDoServices.updateToDo(id,{isCompleted:status});
+      console.log(response.data);
+      messageApi.success("Task Status Updated Successfully!");
+      getAllToDo();
+    }catch(err){
+      console.log(err);
+      messageApi.error(getErrorMessage(err));
+    }
+  }
+
+  const handleUpdateTask = async ()=>{
+      try{
+        setLoading(true);
+        const data = {
+          title:updatedTitle,
+          description:updatedDescription,
+          isCompleted:updatedStatus
+        };
+        console.log(data);
+        const response = await ToDoServices.updateToDo(currentEditItem?._id,data);
+        console.log(response.data);
+        messageApi.success(`${currentEditItem?.title} Updated Successfully!`);
+        setLoading(false);
+        setIsEditing(false);
+        getAllToDo();
+      }catch(err){
+        console.log(err);
+        setLoading(false);
+        messageApi.error(getErrorMessage(err))
+      }
+  }
+
+
   return (
     <>
       <Navbar active={"myTask"} />
@@ -190,7 +173,7 @@ function TodoList() {
         <Divider />
 
         <div className={styles.toDoListCardWrapper}>
-          {allToDo && allToDo.map((item) => (
+          {Array.isArray(allToDo) && allToDo.length > 0 && allToDo.map((item) => (
             <div key={item?._id} className={styles.toDoCard}>
               <div>
                 <div className={styles.toDoCardHeader}>
@@ -212,13 +195,18 @@ function TodoList() {
               </div>
             </div>
           ))}
+          {(!Array.isArray(allToDo) || allToDo.length === 0) && (
+            <div className={styles.noTaskWrapper}>
+              <p>No tasks found. Click "Add Task" to create your first todo!</p>
+            </div>
+          )}
         </div>
-         //add the task window
+    
         <Modal confirmLoading={loading} title="Add New To Do Task" open={isAdding} onOk={handleSubmitTask} onCancel={() => setIsAdding(false)}>
           <Input style={{ marginBottom: '1rem' }} placeholder='Title' value={title} onChange={(e) => setTitle(e.target.value)} />
           <Input.TextArea placeholder='Description' value={description} onChange={(e) => setDescription(e.target.value)} />
         </Modal>
-        // update the task window
+        
         <Modal confirmLoading={loading} title={`Update ${currentEditItem.title}`} open={isEditing} onOk={handleUpdateTask} onCancel={() => setIsEditing(false)}>
           <Input style={{ marginBottom: '1rem' }} placeholder='Updated Title' value={updatedTitle} onChange={(e) => setUpdatedTitle(e.target.value)} />
           <Input.TextArea style={{ marginBottom: '1rem' }} placeholder='Updated Description' value={updatedDescription} onChange={(e) => setUpdatedDescription(e.target.value)} />
