@@ -22,6 +22,7 @@ function TodoList() {
   const [updatedDescription, setUpdatedDescription] = useState("");
   const [currentEditItem, setCurrentEditItem] = useState("");
   const [updatedStatus, setUpdatedStatus] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -153,7 +154,21 @@ const handleDelete = async (item)=>{
         messageApi.error(getErrorMessage(err))
       }
   }
+ 
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  }
 
+  // Filter todos based on search query
+  const getDisplayTodos = () => {
+    if (!searchQuery.trim()) {
+      return allToDo;
+    }
+    return allToDo.filter((item) => 
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
 
   return (
     <>
@@ -162,7 +177,7 @@ const handleDelete = async (item)=>{
       <section className={styles.toDoWrapper}>
         <div className={styles.toDoHeader}>
           <h2>Your Tasks</h2>
-          <input style={{ width: '50%' }} placeholder='Search Your Task Here...' />
+          <input style={{ width: '50%' }} onChange={handleSearch} placeholder='Search Your Task Here...' />
           <div>
             <Button onClick={() => {
               console.log("Add Task button clicked!");
@@ -173,7 +188,9 @@ const handleDelete = async (item)=>{
         <Divider />
 
         <div className={styles.toDoListCardWrapper}>
-          {Array.isArray(allToDo) && allToDo.length > 0 && allToDo.map((item) => (
+          {(() => {
+            const displayTodos = getDisplayTodos();
+            return Array.isArray(displayTodos) && displayTodos.length > 0 && displayTodos.map((item) => (
             <div key={item?._id} className={styles.toDoCard}>
               <div>
                 <div className={styles.toDoCardHeader}>
@@ -194,12 +211,21 @@ const handleDelete = async (item)=>{
                 </div>
               </div>
             </div>
-          ))}
-          {(!Array.isArray(allToDo) || allToDo.length === 0) && (
-            <div className={styles.noTaskWrapper}>
-              <p>No tasks found. Click "Add Task" to create your first todo!</p>
-            </div>
-          )}
+          ))})()}
+          {(() => {
+            const displayTodos = getDisplayTodos();
+            const hasSearchQuery = searchQuery.trim().length > 0;
+            const noResults = displayTodos.length === 0;
+            
+            if (noResults) {
+              return (
+                <div className={styles.noTaskWrapper}>
+                  <p>{hasSearchQuery ? 'No tasks match your search.' : 'No tasks found. Click "Add Task" to create your first todo!'}</p>
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
     
         <Modal confirmLoading={loading} title="Add New To Do Task" open={isAdding} onOk={handleSubmitTask} onCancel={() => setIsAdding(false)}>
