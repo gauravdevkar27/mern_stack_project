@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { getUserDetails } from '../utils/GetUser';
-const SERVER_URL =  'https://mern-stack-project-xy13.onrender.com/todo';
-//const SERVER_URL = 'http://localhost:5000/api/todo';
+const SERVER_URL =  'https://mern-stack-project-xy13.onrender.com/api/todo';
+
+//const SERVER_URL = 'http://localhost:5000/api/todo';      
 
 let authheader = () =>{
     let userToken = getUserDetails()?.token;

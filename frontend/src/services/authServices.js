@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const SERVER_URL = 'https://mern-stack-project-xy13.onrender.com/api';
+
 //'http://localhost:5000/api'
 
 const registerUser = (data) => {
