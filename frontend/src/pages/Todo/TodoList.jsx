@@ -26,23 +26,21 @@ function TodoList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-
     let user = getUserDetails();
 
-    const getAllToDos = async () => {
+    const getAllToDosOnMount = async () => {
       try {
-
         const response = await ToDoServices.getAllToDo();
-        console.log(response.data);
+        console.log('Initial load response:', response.data);
         setAllToDo(response.data.data);
-
       } catch (err) {
         console.log(err);
         messageApi.error(getErrorMessage(err));
       }
     }
+    
     if (user && user?.userId) {
-      getAllToDos();
+      getAllToDosOnMount();
     }
     else {
       navigate('/login');
@@ -53,14 +51,16 @@ function TodoList() {
     try {
       let user = getUserDetails();
       console.log(user?.userId);
-      const response = await ToDoServices.getAllToDo(user?.userId);
-      console.log(response.data);
-      setAllToDo(response.data);
+      const response = await ToDoServices.getAllToDo();
+      console.log('Refresh response:', response.data);
+      // FIX: Use response.data.data instead of response.data
+      setAllToDo(response.data.data);
     } catch (err) {
       console.log(err);
       messageApi.error(getErrorMessage(err));
     }
   }
+
   const getFormattedDate = (value) => {
     let date = new Date(value);
     let dateString = date.toDateString();
@@ -81,6 +81,7 @@ function TodoList() {
       }
 
       const response = await ToDoServices.createToDo(data);
+      console.log('Create response:', response.data);
       const newTask = response.data.data;
 
       // Add new task to the list and reset form fields
@@ -108,6 +109,7 @@ function TodoList() {
     setUpdatedStatus(item?.isCompleted);
     setIsEditing(true);
   }
+  
   const handleDelete = async (item) => {
     try {
       const response = await ToDoServices.deleteToDo(item._id);
@@ -245,17 +247,13 @@ function TodoList() {
                 value: false,
                 label: 'Not Completed',
               },
-
               {
                 value: true,
                 label: 'Completed',
               },
-
             ]}
           />
         </Modal>
-
-
       </section>
     </>
   )
