@@ -49,14 +49,14 @@ function TodoList() {
     }
   }, [navigate, messageApi])
 
-    const getAllToDo = async ()=>{
-    try{
+  const getAllToDo = async () => {
+    try {
       let user = getUserDetails();
       console.log(user?.userId);
       const response = await ToDoServices.getAllToDo(user?.userId);
       console.log(response.data);
       setAllToDo(response.data);
-    }catch(err){
+    } catch (err) {
       console.log(err);
       messageApi.error(getErrorMessage(err));
     }
@@ -99,7 +99,7 @@ function TodoList() {
       setLoading(false);
     }
   }
-  
+
   const handleEdit = (item) => {
     console.log(item);
     setCurrentEditItem(item);
@@ -108,53 +108,53 @@ function TodoList() {
     setUpdatedStatus(item?.isCompleted);
     setIsEditing(true);
   }
-const handleDelete = async (item)=>{
-    try{
+  const handleDelete = async (item) => {
+    try {
       const response = await ToDoServices.deleteToDo(item._id);
       console.log(response.data);
       messageApi.success(`${item.title} is Deleted Successfully!`);
       getAllToDo();
-    }catch(err){
+    } catch (err) {
       console.log(err);
       messageApi.error(getErrorMessage(err));
     }
   }
 
-  const handleUpdateStatus = async (id,status)=>{
+  const handleUpdateStatus = async (id, status) => {
     console.log(id);
-    try{
-      const response = await ToDoServices.updateToDo(id,{isCompleted:status});
+    try {
+      const response = await ToDoServices.updateToDo(id, { isCompleted: status });
       console.log(response.data);
       messageApi.success("Task Status Updated Successfully!");
       getAllToDo();
-    }catch(err){
+    } catch (err) {
       console.log(err);
       messageApi.error(getErrorMessage(err));
     }
   }
 
-  const handleUpdateTask = async ()=>{
-      try{
-        setLoading(true);
-        const data = {
-          title:updatedTitle,
-          description:updatedDescription,
-          isCompleted:updatedStatus
-        };
-        console.log(data);
-        const response = await ToDoServices.updateToDo(currentEditItem?._id,data);
-        console.log(response.data);
-        messageApi.success(`${currentEditItem?.title} Updated Successfully!`);
-        setLoading(false);
-        setIsEditing(false);
-        getAllToDo();
-      }catch(err){
-        console.log(err);
-        setLoading(false);
-        messageApi.error(getErrorMessage(err))
-      }
+  const handleUpdateTask = async () => {
+    try {
+      setLoading(true);
+      const data = {
+        title: updatedTitle,
+        description: updatedDescription,
+        isCompleted: updatedStatus
+      };
+      console.log(data);
+      const response = await ToDoServices.updateToDo(currentEditItem?._id, data);
+      console.log(response.data);
+      messageApi.success(`${currentEditItem?.title} Updated Successfully!`);
+      setLoading(false);
+      setIsEditing(false);
+      getAllToDo();
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+      messageApi.error(getErrorMessage(err))
+    }
   }
- 
+
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
   }
@@ -164,7 +164,7 @@ const handleDelete = async (item)=>{
     if (!searchQuery.trim()) {
       return allToDo;
     }
-    return allToDo.filter((item) => 
+    return allToDo.filter((item) =>
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -191,32 +191,33 @@ const handleDelete = async (item)=>{
           {(() => {
             const displayTodos = getDisplayTodos();
             return Array.isArray(displayTodos) && displayTodos.length > 0 && displayTodos.map((item) => (
-            <div key={item?._id} className={styles.toDoCard}>
-              <div>
-                <div className={styles.toDoCardHeader}>
-                  <h3>{item?.title}</h3>
-                  {item?.isCompleted ? <Tag color="cyan">Completed</Tag> : <Tag color="red">Incomplete</Tag>}
+              <div key={item?._id} className={styles.toDoCard}>
+                <div>
+                  <div className={styles.toDoCardHeader}>
+                    <h3>{item?.title}</h3>
+                    {item?.isCompleted ? <Tag color="cyan">Completed</Tag> : <Tag color="red">Incomplete</Tag>}
+                  </div>
+                  <p>{item?.description}</p>
                 </div>
-                <p>{item?.description}</p>
-              </div>
 
-              <div className={styles.toDoCardFooter}>
-                <Tag>{getFormattedDate(item?.updatedAt || item?.createdAt)}</Tag>
-                <div className={styles.toDoFooterAction}>
-                  <Tooltip title="Edit Task?"><EditOutlined onClick={() => handleEdit(item)} className={styles.actionIcon} /></Tooltip>
-                  <Tooltip title="Delete Task?"><DeleteOutlined onClick={() => handleDelete(item)} style={{ color: 'red' }} className={styles.actionIcon} /></Tooltip>
-                  {item?.isCompleted ?
-                    <Tooltip title="Mark as Incomplete"><CheckCircleFilled onClick={() => handleUpdateStatus(item._id, false)} style={{ color: 'green' }} className={styles.actionIcon} /></Tooltip> :
-                    <Tooltip title="Mark as Completed"><CheckCircleOutlined onClick={() => handleUpdateStatus(item._id, true)} className={styles.actionIcon} /></Tooltip>}
+                <div className={styles.toDoCardFooter}>
+                  <Tag>{getFormattedDate(item?.updatedAt || item?.createdAt)}</Tag>
+                  <div className={styles.toDoFooterAction}>
+                    <Tooltip title="Edit Task?"><EditOutlined onClick={() => handleEdit(item)} className={styles.actionIcon} /></Tooltip>
+                    <Tooltip title="Delete Task?"><DeleteOutlined onClick={() => handleDelete(item)} style={{ color: 'red' }} className={styles.actionIcon} /></Tooltip>
+                    {item?.isCompleted ?
+                      <Tooltip title="Mark as Incomplete"><CheckCircleFilled onClick={() => handleUpdateStatus(item._id, false)} style={{ color: 'green' }} className={styles.actionIcon} /></Tooltip> :
+                      <Tooltip title="Mark as Completed"><CheckCircleOutlined onClick={() => handleUpdateStatus(item._id, true)} className={styles.actionIcon} /></Tooltip>}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))})()}
+            ))
+          })()}
           {(() => {
             const displayTodos = getDisplayTodos();
             const hasSearchQuery = searchQuery.trim().length > 0;
             const noResults = displayTodos.length === 0;
-            
+
             if (noResults) {
               return (
                 <div className={styles.noTaskWrapper}>
@@ -227,23 +228,23 @@ const handleDelete = async (item)=>{
             return null;
           })()}
         </div>
-    
+
         <Modal confirmLoading={loading} title="Add New To Do Task" open={isAdding} onOk={handleSubmitTask} onCancel={() => setIsAdding(false)}>
           <Input style={{ marginBottom: '1rem' }} placeholder='Title' value={title} onChange={(e) => setTitle(e.target.value)} />
           <Input.TextArea placeholder='Description' value={description} onChange={(e) => setDescription(e.target.value)} />
         </Modal>
-        
+
         <Modal confirmLoading={loading} title={`Update ${currentEditItem.title}`} open={isEditing} onOk={handleUpdateTask} onCancel={() => setIsEditing(false)}>
           <Input style={{ marginBottom: '1rem' }} placeholder='Updated Title' value={updatedTitle} onChange={(e) => setUpdatedTitle(e.target.value)} />
           <Input.TextArea style={{ marginBottom: '1rem' }} placeholder='Updated Description' value={updatedDescription} onChange={(e) => setUpdatedDescription(e.target.value)} />
           <Select
-           onChange={(value) => setUpdatedStatus(value)}
-           value={updatedStatus}
-           options={[
-            {
+            onChange={(value) => setUpdatedStatus(value)}
+            value={updatedStatus}
+            options={[
+              {
                 value: false,
                 label: 'Not Completed',
-           },
+              },
 
               {
                 value: true,
