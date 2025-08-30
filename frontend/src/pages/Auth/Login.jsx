@@ -4,7 +4,6 @@ import loginImg from '../../assets/login.png';
 import { Input, Button, App } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthServices from '../../services/authServices';
-import { getErrorMessage } from '../../utils/GetError';
 import { AuthContext } from '../../context/Authcontext';
 
 function Login() {
@@ -35,7 +34,7 @@ function Login() {
       navigate('/to-do-list');
     } catch (err) {
       console.log(err);
-      messageApi.error(getErrorMessage(err));
+      messageApi.error("Invalid username or password");
     } finally {
       setLoading(false);
     }
@@ -61,6 +60,10 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+        </div>
+
+        <div className={styles.input__info}>
+          <Link to="/forgot-password">Forgot Password?</Link>
         </div>
 
         <div className={styles.input__info}>

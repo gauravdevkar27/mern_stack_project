@@ -4,6 +4,8 @@ import Register from './pages/Auth/Register.jsx';
 import TodoList from './pages/Todo/TodoList.jsx';
 import Landing from './pages/Landing/Landing.jsx';
 import Login from './pages/Auth/Login.jsx';
+import Forgot_Password from './pages/Auth/Forgot_Password.jsx';
+import Reset_Password from './pages/Auth/Reset_Password.jsx';
 import './App.css';
 import 'antd/dist/reset.css';
 import { App as AntApp } from 'antd';
@@ -18,6 +20,8 @@ function App() {
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
           <Route path='/to-do-list' element={<TodoList />} />
+          <Route path='/forgot-password' element={<Forgot_Password/>}/>
+          <Route path='/reset-password/:token' element={<Reset_Password/>}/>
         </Routes>
       </AntApp>
     </AuthProvider>
