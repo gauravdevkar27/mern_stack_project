@@ -14,7 +14,7 @@ const resetPasswordTokenSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-        expires: 1800 // Token expires in 0.5 hour (1800 seconds)
+        expires: 3600 // Token expires in 0.5 hour (1800 seconds)
     },
     isUsed: {
         type: Boolean,
